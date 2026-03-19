@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Pão de Mel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Garante que o padding não quebre a largura */
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #mensagem {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Novo Pedido</h2>
+    <form id="formPaoDeMel">
+        <div class="form-group">
+            <label for="id">ID</label>
+            <input type="text" id="id" required placeholder="Ex: 001">
+        </div>
+        <div class="form-group">
+            <label for="cliente">Cliente</label>
+            <input type="text" id="cliente" required placeholder="Nome do Cliente">
+        </div>
+        <div class="form-group">
+            <label for="quantidade">Quantidade</label>
+            <input type="number" id="quantidade" required min="1" placeholder="Ex: 5">
+        </div>
+        <div class="form-group">
+            <label for="valor">Valor (R$)</label>
+            <input type="number" id="valor" step="0.01" required placeholder="Ex: 25.50">
+        </div>
+        <div class="form-group">
+            <label for="tamanho">Tamanho</label>
+            <select id="tamanho" required>
+                <option value="">Selecione...</option>
+                <option value="Pequeno">Pequeno</option>
+                <option value="Médio">Médio</option>
+                <option value="Grande">Grande</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="pagamento">Forma de Pagamento</label>
+            <select id="pagamento" required>
+                <option value="">Selecione...</option>
+                <option value="Pix">Pix</option>
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Cartão de Crédito">Cartão de Crédito</option>
+                <option value="Cartão de Débito">Cartão de Débito</option>
+            </select>
+        </div>
+        
+        <button type="submit" id="btnEnviar">Salvar na Planilha</button>
+    </form>
+    <div id="mensagem"></div>
+</div>
+
+<script>
+    document.getElementById('formPaoDeMel').addEventListener('submit', function(e) {
+        e.preventDefault(); // Impede a página de recarregar
+        
+        const btnEnviar = document.getElementById('btnEnviar');
+        const divMensagem = document.getElementById('mensagem');
+        
+        btnEnviar.innerText = 'Salvando...';
+        btnEnviar.disabled = true;
+        divMensagem.innerText = '';
+        divMensagem.style.color = '';
+
+        // Coleta os dados do formulário
+        const dados = {
+            id: document.getElementById('id').value,
+            cliente: document.getElementById('cliente').value,
+            quantidade: document.getElementById('quantidade').value,
+            valor: document.getElementById('valor').value,
+            tamanho: document.getElementById('tamanho').value,
+            pagamento: document.getElementById('pagamento').value
+        };
+
+        // ====== COLOQUE SEU LINK DO WEB APP AQUI ======
+        const urlAPI = 'COLE_SEU_LINK_DO_WEB_APP_AQUI';
+
+        // Envia os dados para o Google Apps Script
+        fetch(urlAPI, {
+            method: 'POST',
+            body: JSON.stringify(dados),
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === "sucesso") {
+                divMensagem.innerText = 'Pedido salvo com sucesso!';
+                divMensagem.style.color = 'green';
+                document.getElementById('formPaoDeMel').reset(); // Limpa o formulário
+            } else {
+                divMensagem.innerText = 'Erro ao salvar: ' + data.mensagem;
+                divMensagem.style.color = 'red';
+            }
+        })
+        .catch(error => {
+            divMensagem.innerText = 'Erro de conexão com a planilha.';
+            divMensagem.style.color = 'red';
+            console.error(error);
+        })
+        .finally(() => {
+            btnEnviar.innerText = 'Salvar na Planilha';
+            btnEnviar.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
